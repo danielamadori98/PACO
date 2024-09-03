@@ -25,8 +25,7 @@ class ExecutionViewPoint:
 		self.parent = parent
 		self.is_final_state = is_final_state
 		self.transitions: dict[tuple, ExecutionTree] = {}
-		self.probability, self.impacts = ExecutionViewPoint.expected_impacts_evaluation(states, len(impacts_names))
-		self.cei_top_down = self.probability * self.impacts
+		self.expected_impacts_evaluation(len(impacts_names))
 		self.cei_bottom_up = np.zeros(len(impacts_names), dtype=np.float64)
 
 	def __str__(self) -> str:
@@ -86,25 +85,47 @@ class ExecutionViewPoint:
 
 		self.transitions[tuple(transition)] = subTree
 
-	@staticmethod
-	def expected_impacts_evaluation(states: States, impacts_size: int):
-		impacts = np.zeros(impacts_size, dtype=np.float64)
-		probability = 1.0
 
-		for node, state in states.activityState.items():
-			if (node.type == 'natural' and state > ActivityState.WAITING
-					and (states.activityState[node.childrens[0].root] > ActivityState.WAITING
-						 or states.activityState[node.childrens[1].root] > ActivityState.WAITING)):
+	# Is just an idea, doesn't work it might add the same impact twice
+	# TODO: Fix this
+	def get_expected_impacts_evaluation_from_region_tree(self, region_tree: CTree):
+		root = region_tree.root
 
-				p = node.probability
-				if states.activityState[node.childrens[1].root] > 0:
-					p = 1 - p
-				probability *= p
+		if root not in self.states.activityState:
+			return
 
-			elif node.type == 'task' and state > ActivityState.WAITING:
-					impacts += np.array(node.impact, dtype=np.float64)
+		state = self.states.activityState[root]
 
-		return probability, impacts
+		if root.type == 'task' and state > ActivityState.WAITING:
+			self.impacts += np.array(root.impact, dtype=np.float64)
+			return
+
+		if (root.type == 'natural' and state > ActivityState.WAITING
+				and (self.states.activityState[root.childrens[0].root] > ActivityState.WAITING
+					 or self.states.activityState[root.childrens[1].root] > ActivityState.WAITING)):
+
+			p = root.probability
+			if self.states.activityState[root.childrens[1].root] > 0:
+				p = 1 - p
+			self.probability *= p
+
+		for sub_region in root.childrens:
+			self.get_expected_impacts_evaluation_from_region_tree(sub_region)
+
+
+	def expected_impacts_evaluation(self, impacts_size: int):
+		if self.parent is None: # Root execution view point
+			self.probability = 1.0
+			self.impacts = np.zeros(impacts_size, dtype=np.float64)
+			self.get_expected_impacts_evaluation_from_region_tree(CTree(self.decisions[0])) #Provide the region tree of the root CNode
+		else:
+			self.probability = self.parent.probability
+			self.impacts = copy.deepcopy(self.parent.impacts)
+			for choice_nature in self.choices_natures:
+				self.get_expected_impacts_evaluation_from_region_tree(CTree(choice_nature))
+
+		self.cei_top_down = self.probability * self.impacts
+
 
 	def dot_cei_str(self):
 		return (self.dot_str(full=False) + "_impact",
