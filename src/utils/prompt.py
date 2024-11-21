@@ -53,3 +53,7 @@ prompt = '''
     Another example:
     
 '''
+
+promt1 = '''
+Now write your answer in sections. In particular, the first section has to have the summary with the translation of the process given and a second one where you provide the total answer. Now translate this process: i have a machine that melts a piece of iron. Then, the melted iron is divided into 2 different baskets. The first is cast into a nail shape and has to be individually checked. There is a probability that some are not correct; in this case, they are collected in a special bucket. if they are correct are packed and then shipped. The other iron is cast into cubes and are decided that are shipped to the customer or put into the warehouse. then if the shipped is made the accountant  send the bills.
+'''
