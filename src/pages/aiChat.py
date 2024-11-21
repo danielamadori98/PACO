@@ -1,13 +1,12 @@
 import dash
 from dash import html, Input, Output, State, callback, dcc
 import dash_bootstrap_components as dbc
-from langchain_community.llms import Ollama
-import torch
 from utils.env import sese_diagram_grammar
+from openai import OpenAI
+# docker build -t paco .
+# docker run -d -p 8050:8050 -it --name paco paco 
 dash.register_page(__name__, path='/ai')
-device = 'cuda:0' if torch.cuda.is_available() else 'cpu'
-print(device)
-def instructLLAMA():
+def instructLLAMA(llm):
     prompt_init = '''
         You are an assistant to design processes. In particular, 
         your role is to pass from an user description of the process to the grammar defined using the python library lark.  
@@ -41,7 +40,7 @@ def instructLLAMA():
     print(chat_history)
 
 
-llm = Ollama(model="llama3",num_gpu = 1)
+llm = OpenAI(base_url="http://157.27.201.126:1234/v1", api_key="lm-studio")
 # Initialize chat history
 # instructLLAMA()
 chat_history = []
@@ -66,21 +65,29 @@ layout = html.Div([
     prevent_initial_call=True
 )
 def update_output(n_clicks, prompt):
+    
     if prompt:
         print(prompt)
         try:            
             # Generate the response
-            response = llm.invoke(prompt)
+            response = llm.chat.completions.create(
+                model="lmstudio-community/Llama-3.1-Nemotron-70B-Instruct-HF-GGUF",
+                messages=[
+                    {"role": "system", "content": prompt},
+                    {"role": "user", "content": "Business process design."} 
+                ],
+                temperature=0.7,
+                # stream=True
+            )
             print(f' response {response}')
-            
             # Add the user's message and the assistant's response to the chat history
-            chat_history.append((prompt, response))
+            chat_history.append((prompt, response.choices[0].message.content))
             
             # Generate the chat history for display
             chat_display = []
             for user_msg, assistant_msg in chat_history:
                 chat_display.append(html.P(f"User: {user_msg}"))
-                chat_display.append(html.P(f"Assistant: {assistant_msg}"))
+                chat_display.append(dcc.Markdown(f"Assistant: {assistant_msg}"))
             
             return html.Div(chat_display)
         except Exception as e:
