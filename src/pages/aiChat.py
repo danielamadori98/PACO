@@ -40,7 +40,11 @@ def instructLLAMA(llm):
     print(chat_history)
 
 
-llm = OpenAI(base_url="http://157.27.201.126:1234/v1", api_key="lm-studio")
+llm = OpenAI(base_url="http://157.27.193.108:1234/v1", api_key="lm-studio")
+from langchain_core.messages import HumanMessage
+
+response = llm.invoke([HumanMessage(content="hi!")])
+response.content
 # Initialize chat history
 # instructLLAMA()
 chat_history = []
