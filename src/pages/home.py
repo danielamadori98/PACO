@@ -1,6 +1,7 @@
 import base64
 from datetime import datetime
 import os
+from agent import define_agent
 import dash
 from dash import html, dcc, Input, Output,State, callback
 import dash_bootstrap_components as dbc
@@ -42,7 +43,8 @@ marks = {j: str(j) for j in range(min_duration, int(max_duration), 10) if j != 0
 # }
 
 # img = print_sese_diagram(**bpmn_lark)
-
+chat_history = []
+llm, config_llm = define_agent()
 spinner = dbc.Spinner(color="primary", type="grow", fullscreen=True)
 def layout():
     return html.Div([
@@ -217,7 +219,34 @@ def layout():
             #           dbc.Button('Back', id='back-to-load-bpmn'),
             #     ])
             # ])
-        ]),       
+        ]),   
+        html.Div(
+            [
+                dbc.Button(
+                    "Open Chat",
+                    id="collapse-button",
+                    className="mb-3",
+                    color="primary",
+                    n_clicks=0,
+                ),
+                dbc.Collapse(
+                    html.Div([
+                        dbc.Textarea(id='input-box', placeholder='Type your message here...'),
+                        html.Br(),
+                        dbc.Button('Send', id='send-button'),
+                        dcc.Loading(
+                            id="loading-spinner",
+                            type="default",
+                            overlay_style={"visibility":"visible", "filter": "blur(2px)"},
+                            custom_spinner=html.H2(["I'm thinking...", dcc.Loading(id="loading-1", type="default",)]), #,  dbc.Spinner(color="primary")
+                            children=html.Div(id='chat-output')
+                        )
+                    ]),
+                    id="collapse",
+                    is_open=False,
+                ),
+            ]
+        ),
     ]
 )
 
@@ -328,6 +357,53 @@ def update_output(list_of_contents, list_of_names):
 
 
 #######################
+
+## Open close collapse
+
+#######################
+
+@callback(
+    Output("collapse", "is_open"),
+    [Input("collapse-button", "n_clicks")],
+    [State("collapse", "is_open")],
+)
+def toggle_collapse(n, is_open):
+    if n:
+        return not is_open
+    return is_open
+
+#######################
+
+## CHAT WITH AI
+
+#######################
+
+@callback(
+    Output('chat-output', 'children'),
+    [Input('send-button', 'n_clicks')],
+    [State('input-box', 'value')],
+    prevent_initial_call=True
+)
+def update_output(n_clicks, prompt):
+    
+    if prompt:
+        print(prompt)
+        try:            
+            # Generate the response
+            response = llm.invoke({"input": prompt})
+            print(f' response {response}')
+            # Add the user's message and the assistant's response to the chat history
+            chat_history.append((prompt, response.content))
+            
+            # Generate the chat history for display
+            chat_display = []
+            for user_msg, assistant_msg in chat_history:
+                chat_display.append(html.P(f"User: {user_msg}"))
+                chat_display.append(dcc.Markdown(f"Assistant: {assistant_msg}"))
+            
+            return html.Div(chat_display)
+        except Exception as e:
+            return html.P(f"Error: {e}")
 
 ## FIND THE STRATEGY
 

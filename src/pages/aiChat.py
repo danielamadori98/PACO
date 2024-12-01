@@ -2,7 +2,7 @@ import dash
 from dash import html, Input, Output, State, callback, dcc
 import dash_bootstrap_components as dbc
 from utils.env import sese_diagram_grammar
-from openai import OpenAI
+from agent import define_agent
 # docker build -t paco .
 # docker run -d -p 8050:8050 -it --name paco paco 
 dash.register_page(__name__, path='/ai')
@@ -40,11 +40,7 @@ def instructLLAMA(llm):
     print(chat_history)
 
 
-llm = OpenAI(base_url="http://157.27.193.108:1234/v1", api_key="lm-studio")
-from langchain_core.messages import HumanMessage
-
-response = llm.invoke([HumanMessage(content="hi!")])
-response.content
+llm , config = define_agent()
 # Initialize chat history
 # instructLLAMA()
 chat_history = []
@@ -74,18 +70,19 @@ def update_output(n_clicks, prompt):
         print(prompt)
         try:            
             # Generate the response
-            response = llm.chat.completions.create(
-                model="lmstudio-community/Llama-3.1-Nemotron-70B-Instruct-HF-GGUF",
-                messages=[
-                    {"role": "system", "content": prompt},
-                    {"role": "user", "content": "Business process design."} 
-                ],
-                temperature=0.7,
-                # stream=True
-            )
+            # response = llm.chat.completions.create(
+            #     model="lmstudio-community/Llama-3.1-Nemotron-70B-Instruct-HF-GGUF",
+            #     messages=[
+            #         {"role": "system", "content": prompt},
+            #         {"role": "user", "content": "Business process design."} 
+            #     ],
+            #     temperature=0.7,
+            #     # stream=True
+            # )
+            response = llm.invoke({'input' :prompt})
             print(f' response {response}')
             # Add the user's message and the assistant's response to the chat history
-            chat_history.append((prompt, response.choices[0].message.content))
+            chat_history.append((prompt, response.content))
             
             # Generate the chat history for display
             chat_display = []

@@ -1,13 +1,26 @@
-from utils.env import sese_diagram_grammar
 define_role = f'''
 
     You are an assistant to design processes. In particular, 
-    your role is to pass from an user description of the process to the grammar defined using the python library lark and vice versa.  
+    your role is to pass from an user description of the process to the grammar defined and vice versa.  
     Note that all process that you have to create are BPMN diagram that are single-entry-single-exit (SESE). 
     Meaning that for all nodes you have only one element in exit and one incoming.        
     There are few exceptions which are: natures or probabilistic split, choice and parallel. They have one entry but 2 exits.
     That is because the the choices and the natures represents xor decisions while parallel represents 'and', so taking both the branches.
-    the grammar is {sese_diagram_grammar}.
+    This grammar defines a subset of BPMN (Business Process Model and Notation) processes using a simplified syntax. Here's a description of each part:
+    Sequential Rule (sequential):
+    A sequential process can be a region.
+    It can also be a sequence of regions, separated by commas.
+    XOR Rule (xor):
+    An xor can be a parallel process.
+    It can also be a choice between two parallel processes, indicated by / or ^ followed by a name in square brackets [NAME].
+    Parallel Rule (parallel):
+    A parallel process can be a sequential process.
+    It can also be two sequential processes running in parallel, indicated by ||.    
+    Region Rule (region):
+    A region can be a single task, represented by a NAME.
+    It can also be a loop, indicated by < and > surrounding an xor process.
+    A loop with a probability, indicated by < followed by a name in square brackets [NAME], an xor process, and >.
+    It can also be a nested xor process, indicated by parentheses ( and ).
     All the different section of the process are inserted in () and there can not be an empty region. These can be nested as (T1, (T2,T3)).
     '''
 
@@ -48,6 +61,74 @@ examples_bpmn = [
 
     # },
 
+    {
+        "input": '''
+        Theprocess starts with a parallel split into two branches. The first branch contains a choice between task T1 and task T2. The second branch contains a nested nature split. This nested nature split has two branches:
+
+        The first branch of the nested nature split contains another nature split between task T3 and task T4, followed by task TU1.
+        The second branch of the nested nature split contains another nature split between task T5 and task T6, followed by task TU2.
+        The nature splits are probabilistic, meaning that the decision to follow one branch or the other is based on a probability.
+
+        In summary, the process involves a parallel split into two branches. The first branch contains a choice between T1 and T2. The second branch contains a nested nature split with two branches:
+
+        The first branch of the nested nature split contains another nature split between T3 and T4, followed by TU1.
+        The second branch of the nested nature split contains another nature split between T5 and T6, followed by TU2.
+        ''',
+        "answer": '''((T1 /[C1] T2) || (( (T3 ^[N2] T4), TU1) ^[N1] ( (T5 ^[N3] T6), TU2)))''',
+
+    },
+
+    {
+        "input": '''A simple process where I have to do a T1 and then a T2''',
+        "answer": '''T1, T2''',
+
+    },
+
+
+    {
+        "input": '''I have a process where I have to do a T0 and then I have to choose between T1 AND T2''',
+        "answer": '''T0, (T1 / [C1] T2)''',
+
+    },
+
+
+
+    {
+        "input": '''A process where I have to do a SimpleTask1 and then I have a nature between Task1 and T2 ''',
+        "answer": '''SimpleTask1, (Task1 ^ [N1] T2)''',
+
+    },
+
+
+
+    {
+        "input": '''A process where I have to do a SimpleTask1 and then I have a nature between Task1 and T2 and then I have a nature between T3 and T4''',
+        "answer": '''SimpleTask1,  (Task1 ^ [N1] T2),  (T3 ^ [N2] T4)''',
+
+    },
+
+
+
+    {
+        "input": '''A process where I have a nature between TaskA and TaskB followed by Task2''',
+        "answer": '''(TaskA ^ [C1] TaskB, Task2)''',
+
+    },
+
+
+    {
+        "input": '''Fist I have a nature between HP and LP, then I have aNOTHER nature between HPHS and LPLS then a choice between t1 and t3, then t4 and t5''', 
+        "answer": '''(HP ^ [N1]LP ), (HPHS ^ [N2] LPLS), (t1  / [c1] t3), t4, t5''',
+
+    },
+
+
+    # {
+    #     "input": '''''',
+    #     "answer": '''''',
+
+    # },
+    
     # {
     #     "input": '''''',
     #     "answer": '''''',

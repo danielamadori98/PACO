@@ -16,3 +16,8 @@ fastapi
 pydantic
 redis
 openai
+langchain
+langchain_openai
+dash_socketio
+dash_mantine_components
+flask_socketio

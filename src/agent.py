@@ -1,53 +1,120 @@
 import random
 from langchain_openai import ChatOpenAI
 from langchain_core.messages import HumanMessage
-from langgraph.checkpoint.memory import MemorySaver
-from langgraph.prebuilt import create_react_agent
+# from langgraph.checkpoint.memory import MemorySaver
+# from langgraph.prebuilt import create_react_agent
 from langchain.agents import tool
 from langchain_core.prompts import PromptTemplate
 from langchain_core.prompts import ChatPromptTemplate, FewShotChatMessagePromptTemplate
 from prompt import examples_bpmn, define_role
-memory = MemorySaver()
-model: ChatOpenAI = ChatOpenAI(
-    base_url="http://157.27.193.108:1234/v1",
-    temperature=0.7,
-    api_key="lm-studio",
-)
+from utils.env import SESE_PARSER
+# https://github.com/RenaudLN/dash_socketio/tree/main
+@tool
+def check_correct_process(expression: str) -> bool:
+    """
+    Checks if the given BPMN process expression is correct according to the SESE diagram grammar.
 
-example_prompt = ChatPromptTemplate.from_messages(
-    [
-        ("human", "{input}"),
-        ("ai", "{answer}"),
-    ]
-)
+    Args:
+        expression (str): The BPMN process expression to be checked.
 
-few_shot_prompt = FewShotChatMessagePromptTemplate(
-    example_prompt=example_prompt,
-    examples=examples_bpmn,
-)
+    Returns:
+        bool: True if the expression is correct and can be parsed by SESE_PARSER, False otherwise.
 
-final_prompt = ChatPromptTemplate.from_messages(
-    [
-        ("system", define_role),
-        few_shot_prompt,
-        ("human", "{input}"),
-    ]
-)
-print(few_shot_prompt.invoke({}).to_messages())
-chain = final_prompt | model
+    Raises:
+        Exception: If the expression cannot be parsed, an exception is caught and False is returned.
+    """
+    try:
+        SESE_PARSER.parse(expression)
+        return True
+    except Exception as e:
+        return False
 
-chain.invoke({"input": "I have to complete the writing task before having a nature between talking with the publisher or to print the page written. Then, i choose between going to the park or continue writing"})
-# @tool
-# def get_word_length(word: str) -> int:
-#     """Returns the length of a word."""
-#     print("Using tool")
-#     return random.randint(0, 10)
+
+
+# url = '157.27.193.108'
+# memory = MemorySaver()
+# model: ChatOpenAI = ChatOpenAI(
+#     base_url=f"http://{url}:1234/v1",
+#     temperature=0.7,
+#     api_key="lm-studio",
+# )
+
+# example_prompt = ChatPromptTemplate.from_messages(
+#     [
+#         ("human", "{input}"),
+#         ("ai", "{answer}"),
+#     ]
+# )
+
+# few_shot_prompt = FewShotChatMessagePromptTemplate(
+#     example_prompt=example_prompt,
+#     examples=examples_bpmn,
+# )
+
+# final_prompt = ChatPromptTemplate.from_messages(
+#     [
+#         ("system", define_role),
+#         few_shot_prompt,
+#         ("human", "{input}"),
+#     ]
+# )
+# print(few_shot_prompt.invoke({}).to_messages())
+# chain = final_prompt | model
+# config = {"configurable": {"thread_id": "abc123"}}
+# chain.invoke(
+#     {"input": "I have to complete the writing task before having a nature between talking with the publisher or to print the page written. Then, i choose between going to the park or continue writing"})
+# for chunk in chain.stream(
+    
+#     {"input": [HumanMessage(content="I have to complete the writing task before having a nature between talking with the publisher or to print the page written. Then, i choose between going to the park or continue writing")]}, config
+# ):
+#     print(chunk.content, end='', flush=True)
+# while True:
+#     user_input = input("You: ")
+#     for chunk in chain.stream(
+#         {"input": user_input}, config
+#     ):
+#         print(chunk.content, end='', flush=True)
+
+def define_agent():
+    url = '157.27.193.108'
+    model: ChatOpenAI = ChatOpenAI(
+        base_url=f"http://{url}:1234/v1",
+        temperature=0.7,
+        api_key="lm-studio",
+    )
+
+    example_prompt = ChatPromptTemplate.from_messages(
+        [
+            ("human", "{input}"),
+            ("ai", "{answer}"),
+        ]
+    )
+
+    few_shot_prompt = FewShotChatMessagePromptTemplate(
+        example_prompt=example_prompt,
+        examples=examples_bpmn,
+    )
+
+    final_prompt = ChatPromptTemplate.from_messages(
+        [
+            ("system", define_role),
+            few_shot_prompt,
+            ("human", "{input}"),
+        ]
+    )
+    print(few_shot_prompt.invoke({}).to_messages())
+    chain = final_prompt | model
+    config = {"configurable": {"thread_id": "abc123"}}
+    chain.invoke(    {"input": "I have to complete the writing task before having a nature between talking with the publisher or to print the page written. Then, i choose between going to the park or continue writing"})
+    return chain, config
+# chain.invoke(
+#     {"input": "I have to complete the writing task before having a nature between talking with the publisher or to print the page written. Then, i choose between going to the park or continue writing"})
 
 # tools = [get_word_length]
 # agent_executor = create_react_agent(model, tools, checkpointer=memory)
 
 # # Use the agent
-# config = {"configurable": {"thread_id": "abc123"}}
+
 # for chunk in agent_executor.stream(
 #     {"messages": [HumanMessage(content="hi im bob! and i live in sf")]}, config
 # ):
