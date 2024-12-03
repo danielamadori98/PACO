@@ -30,9 +30,11 @@ NB! This application is currently under development. There may be some issues an
 
 To use the chatbot download you preferred model (we used [Nemotron-70B]( https://huggingface.co/nvidia/Llama-3.1-Nemotron-70B-Instruct-HF)) using [LM STUDIO](https://lmstudio.ai/).
 
-[Click here to watch the video using the chat](ChatLLM.mp4)
 
-
+<video width="560" height="315" controls>
+  <source src="ChatLLM.mp4" type="video/mp4">
+  Error in loading the video.
+</video>
 ## Authors
 
 * **Daniel Amadori**
