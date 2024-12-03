@@ -26,6 +26,13 @@ To use RESPISE, you can  follow these steps:
 
 NB! This application is currently under development. There may be some issues and bugs.
 
+# CHATBOT 
+
+To use the chatbot download you preferred model (we used [Nemotron-70B]( https://huggingface.co/nvidia/Llama-3.1-Nemotron-70B-Instruct-HF)) using [LM STUDIO](https://lmstudio.ai/).
+
+[Click here to watch the video using the chat](ChatLLM.mp4)
+
+
 ## Authors
 
 * **Daniel Amadori**
