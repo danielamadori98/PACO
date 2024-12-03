@@ -4,18 +4,18 @@ from openai import OpenAI
 # # Point to the local server
 client = OpenAI(base_url="http://157.27.193.108:1234/v1", api_key="lm-studio")
 prompt = "Always answer in rhymes. Talk about the future, and the past, and the present times."
-# sms = [ {'role' : 'system', 'content' : 'You are an assistant to design processes. In particular, your role is to pass from an user description of the process to the grammar defined using the python library lark and vice versa.  '} ]
-# m = "lmstudio-community/Llama-3.1-Nemotron-70B-Instruct-HF-GGUF"
+sms = [ {'role' : 'system', 'content' : 'You are an assistant to design processes. In particular, your role is to pass from an user description of the process to the grammar defined using the python library lark and vice versa.  '} ]
+m = "lmstudio-community/Llama-3.1-Nemotron-70B-Instruct-HF-GGUF"
 # for p in list(examples_prompt.keys()):
 #     print(examples_prompt[p])
 #     sms.append({"role": "user", "content": examples_prompt[p]})
-# # completion = client.chat.completions.create(
-# #   model=m,
-# #   messages=sms,
-# #   temperature=0.7,
-# # )
+completion = client.chat.completions.create(
+  model=m,
+  messages=sms,
+  temperature=0.7,
+)
 
-# # print(completion.choices[0].message.content)
+print(completion.choices[0].message.content)
 
 # while True:
 #   completion = client.chat.completions.create(
@@ -69,6 +69,7 @@ llm: ChatOpenAI = ChatOpenAI(
     base_url="http://157.27.193.108:1234/v1",
     temperature=0.7,
     api_key="lm-studio",
+    model = m
 )
 @tool
 def get_word_length(word: str) -> int:

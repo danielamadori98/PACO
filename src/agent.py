@@ -6,9 +6,13 @@ from langchain_core.messages import HumanMessage
 from langchain.agents import tool
 from langchain_core.prompts import PromptTemplate
 from langchain_core.prompts import ChatPromptTemplate, FewShotChatMessagePromptTemplate
-from prompt import examples_bpmn, define_role
-from utils.env import SESE_PARSER
+from ai.prompt import examples_bpmn, define_role
+from utils.env import MODEL, SESE_PARSER
 # https://github.com/RenaudLN/dash_socketio/tree/main
+
+# docker build -t paco .
+# docker run -d -p 8050:8050 -it --name paco paco 
+
 @tool
 def check_correct_process(expression: str) -> bool:
     """
@@ -75,12 +79,12 @@ def check_correct_process(expression: str) -> bool:
 #     ):
 #         print(chunk.content, end='', flush=True)
 
-def define_agent():
-    url = '157.27.193.108'
+def define_agent(url = '157.27.193.108', verbose = False):    
     model: ChatOpenAI = ChatOpenAI(
         base_url=f"http://{url}:1234/v1",
         temperature=0.7,
         api_key="lm-studio",
+        model=MODEL
     )
 
     example_prompt = ChatPromptTemplate.from_messages(
@@ -102,11 +106,18 @@ def define_agent():
             ("human", "{input}"),
         ]
     )
-    print(few_shot_prompt.invoke({}).to_messages())
+    if verbose:
+        print(few_shot_prompt.invoke({}).to_messages())
     chain = final_prompt | model
     config = {"configurable": {"thread_id": "abc123"}}
-    chain.invoke(    {"input": "I have to complete the writing task before having a nature between talking with the publisher or to print the page written. Then, i choose between going to the park or continue writing"})
+    if verbose:
+        try:
+            chain.invoke(    {"input": "I have to complete the writing task before having a nature between talking with the publisher or to print the page written. Then, i choose between going to the park or continue writing"})
+        except Exception as e:
+            print(e)
     return chain, config
+
+chain, config = define_agent(verbose=True)
 # chain.invoke(
 #     {"input": "I have to complete the writing task before having a nature between talking with the publisher or to print the page written. Then, i choose between going to the park or continue writing"})
 
