@@ -69,9 +69,8 @@ def print_parse_tree(tree, h = 0, probabilities={}, impacts={}, loop_thresholds 
 	tree = dot_tree(tree, h, probabilities, impacts, loop_thresholds)
 	dot_string = "digraph my_graph{"+ tree +"}"
 	graph = pydot.graph_from_dot_data(dot_string)[0]
-	graph.write_svg(outfile + '.svg')
-	#graph.write_png(outfile)
-	#return Image.open(outfile).convert('RGB')
+	graph.write_png(outfile)
+	return Image.open(outfile).convert('RGB')
 
 def dot_task(id, name, duration, h=0, imp=None):
 	label = name + '\n'

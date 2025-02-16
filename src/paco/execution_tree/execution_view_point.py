@@ -45,4 +45,4 @@ class ExecutionViewPoint(ViewPoint):
 		if choice_label != "":
 			label += "Choice: " + choice_label[:-2] + "\n"
 
-		return self.dot_str(full=False) + "_description", f" [label=\"{label}\", shape=rect];\n"
+		return self.dot_str(full=False) + "_impact", f" [label=\"{label}\", shape=rect];\n"

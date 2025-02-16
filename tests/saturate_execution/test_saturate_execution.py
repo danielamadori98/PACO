@@ -4,7 +4,7 @@ import os
 from paco.parser.parse_tree import from_lark_parsed_to_custom_tree as Lark_to_CTree
 from paco.saturate_execution.saturate_execution import saturate_execution_decisions
 from paco.saturate_execution.states import States, states_info, ActivityState
-from paco.parser.tree_lib import CTree, CNode
+from paco.parser.tree_lib import CTree, CNode, print_parse_tree
 from utils import check_syntax as cs
 from utils.env import TASK_SEQ, H, IMPACTS, DURATIONS, IMPACTS_NAMES, PROBABILITIES, NAMES, DELAYS, LOOPS_PROB, LOOP, \
     SESE_PARSER

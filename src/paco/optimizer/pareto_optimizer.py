@@ -50,7 +50,7 @@ def pareto_optimal_impacts(bpmn: dict, max_bound:np.ndarray= None, decimal_numbe
 
 		print(f"Attempt {i}:\t{bpmn[IMPACTS_NAMES]}\nSelected:\t{bound}\n")
 
-		text_result, parse_tree, execution_tree, expected_impacts, new_possible_min_solution, new_min_solutions, choices = paco(bpmn, bound, parse_tree, execution_tree, search_only=not found_optimal)
+		text_result, parse_tree, execution_tree, expected_impacts, new_possible_min_solution, new_min_solutions, choices, name_svg = paco(bpmn, bound, parse_tree, execution_tree, search_only=not found_optimal)
 
 		if found_optimal:
 			print("Optimal solution found")

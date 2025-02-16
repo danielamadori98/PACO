@@ -56,8 +56,7 @@ class ViewPoint(ABC):
 		return "\\n".join(parts)
 
 	def common_dot_str(self, full: bool = True, state: bool = True, executed_time: bool = False, previous_node: States = None):
-		#result = str(self).replace('(', '').replace(')', '').replace(';', '_').replace(':', '_').replace('-', "neg").replace(' | ', '_')
-		result = str(self.id)
+		result = str(self).replace('(', '').replace(')', '').replace(';', '_').replace(':', '_').replace('-', "neg").replace(' | ', '_')
 
 		if not full:
 			return result

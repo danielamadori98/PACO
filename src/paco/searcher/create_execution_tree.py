@@ -7,8 +7,10 @@ from paco.parser.tree_lib import CNode, CTree
 from paco.saturate_execution.saturate_execution import saturate_execution_decisions
 from paco.saturate_execution.states import States, ActivityState
 from paco.execution_tree.execution_tree import ExecutionTree
-from utils.env import PATH_EXECUTION_TREE, RESOLUTION, PATH_EXECUTION_TREE_STATE, PATH_EXECUTION_TREE_STATE_TIME, \
-	PATH_EXECUTION_TREE_STATE_TIME_EXTENDED, PATH_EXECUTION_TREE_TIME
+from utils.env import PATH_EXECUTION_TREE, RESOLUTION, PATH_AUTOMA_STATE_DOT, PATH_AUTOMA_STATE_IMAGE_SVG, \
+	PATH_AUTOMA_STATE_TIME_DOT, \
+	PATH_AUTOMA_TIME_IMAGE_SVG, PATH_AUTOMA_STATE_TIME_EXTENDED_DOT, \
+	PATH_AUTOMA_STATE_TIME_EXTENDED_IMAGE_SVG, PATH_AUTOMA_TIME_DOT
 
 
 def create_execution_tree(region_tree: CTree, impacts_names:list) -> (ExecutionTree, list[ExecutionTree]):
@@ -57,40 +59,39 @@ def create_execution_viewpoint(region_tree: CTree, decisions: tuple[CNode], stat
 	return id
 
 
-def write_image(frontier: list[ExecutionTree], path: str):
-	graph = pydot.graph_from_dot_file(path + '.dot')[0]
+def write_image(frontier: list[ExecutionTree], dotPath: str, svgPath: str = "", pngPath: str = ""):
+	graphs = pydot.graph_from_dot_file(dotPath)
+	graph = graphs[0]
 
-	for tree in frontier:
-		node = tree.root
-		dot_node = graph.get_node(str(node.id))
-		if len(dot_node) == 0:
-			raise Exception("Node of thee frontier not found in the dot file")
-		dot_node = dot_node[0]
-		dot_node.set_style('filled')
-		dot_node.set_fillcolor('lightblue')
+	for e in frontier:
+		node = graph.get_node('"' + e.state_str() + '"')[0]
+		node.set_style('filled')
+		node.set_fillcolor('lightblue')
 
-	graph.write_svg(path + '.svg')
+	if svgPath != "":
+		graph.write_svg(svgPath)
 
-	#graph.set('dpi', RESOLUTION)
-	#graph.write_png(path + '.png')
+	graph.set('dpi', RESOLUTION)
+	if pngPath != "":
+		graph.write_png(pngPath)
 
 
-def write_execution_tree(solution_tree: ExecutionTree, frontier: list[ExecutionTree] = [], PATH_AUTOMA_STATE_TIME=None):
+def write_execution_tree(solution_tree: ExecutionTree, frontier: list[ExecutionTree] = []):
 	if not os.path.exists(PATH_EXECUTION_TREE):
 		os.makedirs(PATH_EXECUTION_TREE)
-	solution_tree.save_dot(PATH_EXECUTION_TREE_STATE + '.dot', diff=False)
-	write_image(frontier, PATH_EXECUTION_TREE_STATE)
+	solution_tree.save_dot(PATH_AUTOMA_STATE_DOT, diff=False)
+	write_image(frontier, PATH_AUTOMA_STATE_DOT, svgPath=PATH_AUTOMA_STATE_IMAGE_SVG)#, PATH_AUTOMA_IMAGE)
 
-	solution_tree.save_dot(PATH_EXECUTION_TREE_STATE_TIME + '.dot', executed_time=True)
-	write_image(frontier, PATH_EXECUTION_TREE_STATE_TIME)
+	solution_tree.save_dot(PATH_AUTOMA_STATE_TIME_DOT, executed_time=True)
+	write_image(frontier, PATH_AUTOMA_STATE_TIME_DOT, svgPath=PATH_AUTOMA_TIME_IMAGE_SVG)#, PATH_AUTOMA_TIME_IMAGE)
 
-	solution_tree.save_dot(PATH_EXECUTION_TREE_STATE_TIME_EXTENDED + '.dot', executed_time=True, diff=False)
-	write_image(frontier, PATH_EXECUTION_TREE_STATE_TIME_EXTENDED)
+	solution_tree.save_dot(PATH_AUTOMA_STATE_TIME_EXTENDED_DOT, executed_time=True, diff=False)
+	write_image(frontier, PATH_AUTOMA_STATE_TIME_EXTENDED_DOT, svgPath=PATH_AUTOMA_STATE_TIME_EXTENDED_IMAGE_SVG)#, PATH_AUTOMA_TIME_EXTENDED_IMAGE)
 
-	solution_tree.save_dot(PATH_EXECUTION_TREE_TIME + '.dot', state=False, executed_time=True)
-	write_image(frontier, PATH_EXECUTION_TREE_TIME)
+	solution_tree.save_dot(PATH_AUTOMA_TIME_DOT, state=False, executed_time=True)
+	write_image(frontier, PATH_AUTOMA_TIME_DOT, svgPath=PATH_AUTOMA_TIME_IMAGE_SVG)#, PATH_AUTOMA_TIME_IMAGE)
 
-	os.remove(PATH_EXECUTION_TREE_STATE + '.dot')
-	os.remove(PATH_EXECUTION_TREE_STATE_TIME + '.dot')
-	os.remove(PATH_EXECUTION_TREE_STATE_TIME_EXTENDED + '.dot')
-	os.remove(PATH_EXECUTION_TREE_TIME + '.dot')
+	os.remove(PATH_AUTOMA_STATE_DOT)
+	os.remove(PATH_AUTOMA_STATE_TIME_DOT)
+	os.remove(PATH_AUTOMA_TIME_DOT)
+	os.remove(PATH_AUTOMA_STATE_TIME_EXTENDED_DOT)

@@ -243,14 +243,17 @@ class Bdd:
 	def bdd_to_file(self):
 		dot = graphviz.Digraph()
 
-		dot.node(str(self.choice), label=f"{self.choice.name}", shape="box", style="filled", color="orange")
+		dot.node(str(self.choice), label=f"{self.choice.name}, ID:{self.choice}", shape="box", style="filled", color="orange")
 		if self.class_1 is not None:
 			dot.edge(str(self.choice), str(self.root))
 			self.bdd_to_file_recursively(dot, self.root)
 		else:
-			label = '0' if self.choice.children[1].root == self.class_0 else '1'
-			dot.node(label, label=label, shape="box", style="filled", color=Bdd.get_decision_color(self.class_0))
-			dot.edge(str(self.choice), label, label="True", style='')
+			label, color = self.get_decision(self.class_0)
+			node = str(self.class_0)
+			dot.node(node, label=label, shape="box", style="filled", color=color)
+			#TODO! check daniel
+			dot.edge(str(self.choice), node, label="True",
+					 style='' if self.choice.children[1].root == self.class_0 else "dashed")
 
 		file_path = PATH_EXPLAINER_DECISION_TREE + "_" + str(self.choice.name)
 		dot.save(file_path + '.dot')
@@ -260,7 +263,7 @@ class Bdd:
 
 
 	@staticmethod
-	def get_decision_color(decision: CNode):
+	def get_decision(decision: CNode):
 		if decision.type == 'choice':
 			color = 'orange'
 		elif decision.type in {'natural', 'loop', 'loop_probability'}:
@@ -268,19 +271,23 @@ class Bdd:
 		elif decision.type == 'task':
 			color = 'lightblue'
 		elif decision.type == 'sequential':
-			return Bdd.get_decision_color(decision.children[0].root)
+			return Bdd.get_decision(decision.children[0].root)
 		elif decision.type == 'parallel':
 			color = 'white'
 		else:
 			raise Exception(f"bdd:get_decision: decision type {decision.type} not recognized")
 
-		return color
+		label = "ID:" + str(decision.id)
+		if decision.name:
+			label += "\n" + decision.name
+
+		return label, color
 
 
 	def bdd_to_file_recursively(self, dot, node: DagNode):
 		if not node.splittable:
-			label = '0' if self.choice.children[1].root == node.class_0 else '1'
-			dot.node(str(node), label=label, shape="box", style="filled", color=Bdd.get_decision_color(node.class_0))
+			label, color = Bdd.get_decision(node.class_0)
+			dot.node(str(node), label=label, shape="box", style="filled", color=color)
 		elif node.best_test is None:
 			dot.node(str(node), label="Undetermined", shape="box", style="filled", color="red")
 		else:
@@ -294,6 +301,7 @@ class Bdd:
 					tmp = left_child
 					left_child = right_child
 					right_child = tmp
+				#TODO! check daniel
 			else:
 				dot.node(str(node), label=f"Exec: {node.best_test[0]}?", shape="ellipse")
 				if node.best_test[2]: # Swap to keep always to check if active instead of not active
@@ -301,7 +309,14 @@ class Bdd:
 					left_child = right_child
 					right_child = tmp
 
-			dot.edge(str(node), self.bdd_to_file_recursively(dot, left_child), label="True", style="")
-			dot.edge(str(node), self.bdd_to_file_recursively(dot, right_child), label="False", style="")
+			left_style = ""
+			if not left_child.splittable and left_child.class_0 == self.choice.children[0].root:
+				left_style = "dashed"
+			right_style = ""
+			if not right_child.splittable and right_child.class_0 == self.choice.children[0].root:
+				right_style = "dashed"
+
+			dot.edge(str(node), self.bdd_to_file_recursively(dot, left_child), label="True", style=left_style)
+			dot.edge(str(node), self.bdd_to_file_recursively(dot, right_child), label="False", style=right_style)
 
 		return str(node)

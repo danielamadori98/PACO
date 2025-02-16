@@ -22,6 +22,22 @@ def checkCorrectSyntax(bpmn:dict) -> bool:
     # print((tree).pretty())
     return True
 
+def check_input(bpmn:dict, bound:dict) -> tuple[str, list]:
+    bound_list = []
+    if bpmn['expression'] == '' or bpmn['expression'] == None:
+        return "The expression is empty or None", bound_list
+    if bound == {} or bound == None:
+        return "The bound is empty or None", bound_list
+
+    try:
+        bound_list = list(extract_values_bound(bound))
+    except Exception as e:
+        return f'Error while parsing the bound: {e}', bound_list
+
+    if bound_list == []:
+        return  "The bound is empty or None", bound_list
+
+    return "", bound_list
 
 def check_algo_is_usable(expression: str, algo: str) -> bool:
     """
@@ -31,7 +47,6 @@ def check_algo_is_usable(expression: str, algo: str) -> bool:
     if expression == '' or algo == '' or algo not in ALGORITHMS.keys():
         return False
     if algo in ALGORITHMS_MISSING_SYNTAX.keys() and list(ALGORITHMS_MISSING_SYNTAX.get(algo)) != []:
-        #print(list(ALGORITHMS_MISSING_SYNTAX.get(algo)))
         for element in list(ALGORITHMS_MISSING_SYNTAX.get(algo)):
             #print(element)
             if element in expression:

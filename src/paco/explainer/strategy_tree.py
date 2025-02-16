@@ -5,8 +5,10 @@ from paco.saturate_execution.step_to_saturation import steps_to_saturation
 from paco.parser.tree_lib import CNode, CTree
 from paco.searcher.create_execution_tree import write_image
 from paco.execution_tree.execution_tree import ExecutionTree
-from utils.env import PATH_STRATEGY_TREE, PATH_STRATEGY_TREE_STATE, PATH_STRATEGY_TREE_STATE_TIME, \
-	PATH_STRATEGY_TREE_STATE_TIME_EXTENDED, PATH_STRATEGY_TREE_TIME
+from utils.env import PATH_STRATEGY_TREE, PATH_STRATEGY_TREE_STATE_DOT, PATH_STRATEGY_TREE_STATE_IMAGE_SVG, \
+	PATH_STRATEGY_TREE_STATE_TIME_DOT, PATH_STRATEGY_TREE_STATE_TIME_IMAGE_SVG, \
+	PATH_STRATEGY_TREE_STATE_TIME_EXTENDED_DOT, PATH_STRATEGY_TREE_STATE_TIME_EXTENDED_IMAGE_SVG, \
+	PATH_STRATEGY_TREE_TIME_DOT, PATH_STRATEGY_TREE_TIME_IMAGE_SVG
 
 
 def saturate_execution(region_tree: CTree, states: States) -> (States, bool, list[CNode], list[CNode]):
@@ -51,20 +53,23 @@ def write_strategy_tree(solution_tree: ExecutionTree):
 		os.makedirs(PATH_STRATEGY_TREE)
 
 	frontier = []
+	solution_tree.save_dot(PATH_STRATEGY_TREE_STATE_DOT)
+	write_image(frontier, PATH_STRATEGY_TREE_STATE_DOT,
+				svgPath=PATH_STRATEGY_TREE_STATE_IMAGE_SVG)  #, PATH_STRATEGY_TREE_STATE_IMAGE_SVG)
 
-	solution_tree.save_dot(PATH_STRATEGY_TREE_STATE + '.dot')
-	write_image(frontier, PATH_STRATEGY_TREE_STATE)  #, PATH_STRATEGY_TREE_STATE_IMAGE_SVG)
+	solution_tree.save_dot(PATH_STRATEGY_TREE_STATE_TIME_DOT, executed_time=True)
+	write_image(frontier, PATH_STRATEGY_TREE_STATE_TIME_DOT,
+				svgPath=PATH_STRATEGY_TREE_STATE_TIME_IMAGE_SVG)  #, PATH_STRATEGY_TREE_STATE_TIME_IMAGE_SVG)
 
-	solution_tree.save_dot(PATH_STRATEGY_TREE_STATE_TIME + '.dot', executed_time=True)
-	write_image(frontier, PATH_STRATEGY_TREE_STATE_TIME)
+	solution_tree.save_dot(PATH_STRATEGY_TREE_STATE_TIME_EXTENDED_DOT, executed_time=True, diff=False)
+	write_image(frontier, PATH_STRATEGY_TREE_STATE_TIME_EXTENDED_DOT,
+				svgPath=PATH_STRATEGY_TREE_STATE_TIME_EXTENDED_IMAGE_SVG)  #, PATH_STRATEGY_TREE_STATE_TIME_EXTENDED_IMAGE_SVG)
 
-	solution_tree.save_dot(PATH_STRATEGY_TREE_STATE_TIME_EXTENDED + '.dot', executed_time=True, diff=False)
-	write_image(frontier, PATH_STRATEGY_TREE_STATE_TIME_EXTENDED)
+	solution_tree.save_dot(PATH_STRATEGY_TREE_TIME_DOT, state=False, executed_time=True)
+	write_image(frontier, PATH_STRATEGY_TREE_TIME_DOT,
+				svgPath=PATH_STRATEGY_TREE_TIME_IMAGE_SVG)  #, PATH_STRATEGY_TREE_TIME_IMAGE_SVG)
 
-	solution_tree.save_dot(PATH_STRATEGY_TREE_TIME + '.dot', state=False, executed_time=True)
-	write_image(frontier, PATH_STRATEGY_TREE_TIME)
-
-	os.remove(PATH_STRATEGY_TREE_STATE + '.dot')
-	os.remove(PATH_STRATEGY_TREE_STATE_TIME + '.dot')
-	os.remove(PATH_STRATEGY_TREE_TIME + '.dot')
-	os.remove(PATH_STRATEGY_TREE_STATE_TIME_EXTENDED + '.dot')
+	os.remove(PATH_STRATEGY_TREE_STATE_DOT)
+	os.remove(PATH_STRATEGY_TREE_STATE_TIME_DOT)
+	os.remove(PATH_STRATEGY_TREE_TIME_DOT)
+	os.remove(PATH_STRATEGY_TREE_STATE_TIME_EXTENDED_DOT)

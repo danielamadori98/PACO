@@ -1,7 +1,13 @@
 lark
 pydot
+pillow
+nbformat
+ipython
 numpy
+aalpy
 graphviz
+networkx
+matplotlib
 dash-bootstrap-components
 pandas
 dash_svg
@@ -9,4 +15,10 @@ dash
 fastapi
 pydantic
 redis
-pillow
+openai
+langchain
+langchain_openai
+dash_socketio
+dash_mantine_components
+dash_auth
+uvicorn

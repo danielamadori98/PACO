@@ -161,7 +161,7 @@ bpmn_ex = {
 }
 def test(name, bpmn, bound):
     print('Type bpmn: ', name)
-    text_result, parse_tree, execution_tree, found, min_expected_impacts, max_expected_impacts, choices = paco(bpmn, np.array(bound, dtype=np.float64))
+    text_result, parse_tree, execution_tree, found, min_expected_impacts, max_expected_impacts, choices, name_svg = paco(bpmn, np.array(bound, dtype=np.float64))
     print('Type bpmn: ', name)
 
 
@@ -225,6 +225,51 @@ bpmn_paper_example = {
         NAMES: {"p0": "p0", "p5": "p5", "p11": "p11", "p15": "p15", "p17": "p17", "p18": "p18", "p21": "p21", "p33":"p33"},
         DELAYS: {"p5": 0, "p21": 0, "p33": 0},LOOPS_PROB : {}, LOOP: {}
     }, [3.5, 3.5,11, 12, 9.5, 9.5]], #[3,3,8,8,7,7]
+    'example_final': [
+        {'impacts_names': ['costo', 'CO2', 'oreLavorate'],
+        'expression': 'arrivoCommessa, ( checkInventario, (recuperoMateriale /[TuttoPresente] (ordinareMancante, recuperoMateriale, ( materialeIn3gg ^[arrivoVeloceMateriale] materialein7gg)))  || organizzaImpresaLogistica, (aspetta1gg ^[CamionDisponibile] aspetta10gg )), assemblaSemiLavorato, dipingi, testProdotto, ( (imballaProdotto, caricaCamion) /[vaBene]  eliminaProdotto)', 
+        'impacts': {
+            'arrivoCommessa': [0, 0, 0], 
+            'checkInventario': [4, 6, 6], 
+            'recuperoMateriale': [16, 13, 16], 
+            'ordinareMancante': [11, 2, 1], 
+            'materialeIn3gg': [40, 1, 56], 
+            'materialein7gg': [31, 45, 6], 
+            'organizzaImpresaLogistica': [1, 3, 8], 
+            'aspetta1gg': [0, 0, 0], 
+            'aspetta10gg': [0, 0, 0], 
+            'assemblaSemiLavorato': [44, 15, 0], 
+            'dipingi': [100, 78, 16], 
+            'testProdotto': [84, 64, 14], 
+            'imballaProdotto': [1, 0, 64], 
+            'caricaCamion': [5, 4, 5], 
+            'eliminaProdotto': [82, 5, 7]
+        }, 
+        'durations': {
+            'arrivoCommessa': [0, 100], 
+            'checkInventario': [0, 100], 
+            'recuperoMateriale': [0, 100], 
+            'ordinareMancante': [0, 100], 
+            'materialeIn3gg': [0, 100], 'materialein7gg': [0, 100], 'organizzaImpresaLogistica': [0, 100], 'aspetta1gg': [0, 100], 'aspetta10gg': [0, 100], 'assemblaSemiLavorato': [0, 100], 'dipingi': [0, 100], 'testProdotto': [0, 100], 'imballaProdotto': [0, 100], 'caricaCamion': [0, 100], 'eliminaProdotto': [0, 100]
+        }, 
+        'probabilities': {
+            'arrivoVeloceMateriale': 0.75, 
+            'CamionDisponibile': 0.5
+        },
+        'loops_prob': {}, 
+        'names': {
+            'TuttoPresente': 'TuttoPresente', 
+            'arrivoVeloceMateriale': 'arrivoVeloceMateriale', 
+            'CamionDisponibile': 'CamionDisponibile', 
+            'vaBene': 'vaBene'
+        }, 
+        'delays': {
+            'TuttoPresente': 0,
+            'vaBene': 0
+        }, 'loop_round': {}, 'h': 0}
+    , [0, 0, 0,]],
+    'example_final_2': [
+        {'impacts_names': ['costo', 'CO2', 'oreLavorate'], 'expression': 'PrepareMaterials, ( (AssemblePartA ^[MaterialTypeSelection] ( (InspectPartA, CalibratePartA) /[AssemblyDecision] (ReworkPartA, CalibratePartA) ) ) || ( (StartPartB /[InspectionDecision](InspectPartB, ApprovePartB)) /[RepairDecision] (RepairPartB, ScrapPartB))),  ( (AssemblePartB ^[MachineCondition]  (CalibrateMachine, ReplaceTool) )/[AssemblyCheck] (InspectAssembly,  (TestAssembly ^[TestProtocol] (RunProtocolA, RunProtocolB) ))),  ((((PackageProduct, (LogInspectionResults /[PackagingDecision] RejectPackaging)) || ((FinalizeLabel, (PrintLabel ^[LabelTypeSelection]  DrawLabel)) /[FinalApproval] (ApproveLabel, ((ShipProduct ^[ShippingMode] ((LoadTruck /[LoadingDecision](VerifyLoad, AdjustLoad)), (SealContainer /[SealCheck](CheckSeal, Reseal))))))))))', 'impacts': {'PrepareMaterials': [0, 0, 0], 'AssemblePartA': [0, 0, 0], 'InspectPartA': [0, 0, 0], 'CalibratePartA': [0, 0, 0], 'ReworkPartA': [0, 0, 0], 'StartPartB': [0, 0, 0], 'InspectPartB': [0, 0, 0], 'ApprovePartB': [0, 0, 0], 'RepairPartB': [0, 0, 0], 'ScrapPartB': [0, 0, 0], 'AssemblePartB': [0, 0, 0], 'CalibrateMachine': [0, 0, 0], 'ReplaceTool': [0, 0, 0], 'InspectAssembly': [0, 0, 0], 'TestAssembly': [0, 0, 0], 'RunProtocolA': [0, 0, 0], 'RunProtocolB': [0, 0, 0], 'PackageProduct': [0, 0, 0], 'LogInspectionResults': [0, 0, 0], 'RejectPackaging': [0, 0, 0], 'FinalizeLabel': [0, 0, 0], 'PrintLabel': [0, 0, 0], 'DrawLabel': [0, 0, 0], 'ApproveLabel': [0, 0, 0], 'ShipProduct': [0, 0, 0], 'LoadTruck': [0, 0, 0], 'VerifyLoad': [0, 0, 0], 'AdjustLoad': [0, 0, 0], 'Sea': [0, 0, 0], 'CalibratePartA': [0, 0, 0], 'ReworkPartA': [0, 0, 0], 'StartPartB': [0, 0, 0], 'InspectPartB': [0, 0, 0], 'ApprovePartB': [0, 0, 0], 'RepairPartB': [0, 0, 0], 'ScrapPartB': [0, 0, 0], 'AssemblePartB': [0, 0, 0], 'CalibrateMachine': [0, 0, 0], 'ReplaceTool': [0, 0, 0], 'InspectAssembly': [0, 0, 0], 'TestAssembly': [0, 0, 0], 'RunProtocolA': [0, 0, 0], 'RunProtocolB': [0, 0, 0], 'PackageProduct': [0, 0, 0], 'LogInspectionResults': [0, 0, 0], 'RejectPackaging': [0, 0, 0], 'FinalizeLabel': [0, 0, 0], 'PrintLabel': [0, 0, 0], 'DrawLabel': [0, 0, 0], 'ApproveLabel': [0, 0, 0], 'ShipProduct': [0, 0, 0], 'LoadTruck': [0, 0, 0], 'VerifyLoad': [0, 0, 0], 'AdjustLoad': [0, 0, 0], 'SearateMachine': [0, 0, 0], 'ReplaceTool': [0, 0, 0], 'InspectAssembly': [0, 0, 0], 'TestAssembly': [0, 0, 0], 'RunProtocolA': [0, 0, 0], 'RunProtocolB': [0, 0, 0], 'PackageProduct': [0, 0, 0], 'LogInspectionResults': [0, 0, 0], 'RejectPackaging': [0, 0, 0], 'FinalizeLabel': [0, 0, 0], 'PrintLabel': [0, 0, 0], 'DrawLabel': [0, 0, 0], 'ApproveLabel': [0, 0, 0], 'ShipProduct': [0, 0, 0], 'LoadTruck': [0, 0, 0], 'VerifyLoad': [0, 0, 0], 'AdjustLoad': [0, 0, 0], 'SeatPackaging': [0, 0, 0], 'FinalizeLabel': [0, 0, 0], 'PrintLabel': [0, 0, 0], 'DrawLabel': [0, 0, 0], 'ApproveLabel': [0, 0, 0], 'ShipProduct': [0, 0, 0], 'LoadTruck': [0, 0, 0], 'VerifyLoad': [0, 0, 0], 'AdjustLoad': [0, 0, 0], 'SealContainer': [0, 0, 0], 'CheckSeal': [0, 0, 0], 'Reseal': [0, 0, 0]}, 'durations': {'PrepareMaterials': [0, 100], 'AssemblePartA': [0, 100], 'InspectPartA': [0, 100], 'CalibratePartA': [0, 100], 'ReworkPartA': [0, 100], 'StartPartBlContainer': [0, 0, 0], 'CheckSeal': [0, 0, 0], 'Reseal': [0, 0, 0]}, 'durations': {'PrepareMaterials': [0, 100], 'AssemblePartA': [0, 100], 'InspectPartA': [0, 100], 'CalibratePartA': [0, 100], 'ReworkPartA': [0, 100], 'StartPartB': [0, 100], 'InspectPartB': [0, 100], 'ApprovePartB': [0, 100], 'RepairPartB': [0, 100], 'ScrapPartB': [0, 100], 'AssemblePartB': [0, 100], 'CalibrateMachine': [0, 100], 'ReplaceTool': [0, 100], 'InspectAssembly': [0, 100], 'TestAssembly': [0, 100], 'RunProtocolA': [0, 100], 'RunProtocolB': [0, 100], 'PackageProduct': [0, 100], 'LogInspectionResults': [0, 100], 'RejectPackaging': [0, 100], 'FinalizeLabel': [0, 100], 'PrintLabel': [0, 100], 'DrawLabel': [0, 100], 'ApproveLabel': [0, 100], 'ShipProduct': [0, 100], 'LoadTruck': [0, 100], 'VerifyLoad': [0, 100], 'AdjustLoad': [0, 100], 'SealContainer': [0, 100], 'CheckSeal': [0, 100], 'Reseal': [0, 100]}, 'probabilities': {'MaterialTypeSelection': 0.5, 'MachineCondition': 0.5, 'TestProtocol': 0.5, 'LabelTypeSelection': 0.5, 'ShippingMode': 0.5}, 'loops_prob': {}, 'names': {'MaterialTypeSelection': 'MaterialTypeSelection', 'AssemblyDecision': 'AssemblyDecision', 'Inspection': 0.5, 'MachineCondition': 0.5, 'TestProtocol': 0.5, 'LabelTypeSelection': 0.5, 'ShippingMode': 0.5}, 'loops_prob': {}, 'names': {'MaterialTypeSelection': 'MaterialTypeSelection', 'AssemblyDecision': 'AssemblyDecision', 'InspectionDecision': 'InspectionDecision', 'RepairDecision': 'RepairDecision', 'MachineCondition': 'MachineCondition', 'AssemblyCheck': 'AssemblyCheck', 'TestProtocol': 'TestProtocol', 'PackagingDecision': 'PackagingDecision', 'LabelTypeSelection': 'LabelTypeSelection', 'FinalApproval': 'FinalApproval', 'ShippingMode': 'ShippingMode', 'LoadingDecision': 'LoadingDecision', 'SealCheck': 'SealCheck'}, 'delays': {'AssemblyDecision': 0, 'InspectionDecision': 0, 'RepairDecision': 0, 'AssemblyCheck': 0, 'PackagingDecision': 0, 'FinalApproval': 0, 'LoadingDecision': 0, 'SealCheck': 0}, 'loop_round': {}, 'h': 0}, [0, 0, 0,]],
 }
 
 

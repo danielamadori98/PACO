@@ -1,20 +1,27 @@
 from lark import Tree, Token
 import pydot
-from utils.env import SESE_PARSER
-
-def print_sese_diagram(expression, outfile:str, h = 0, probabilities={}, impacts={}, loop_thresholds = {},
-                       graph_options = {}, durations = {}, names = {}, delays = {}, impacts_names = [], loop_round = {}, loops_prob={}, ):
+from pydot import *
+from PIL import Image
+from utils.env import PATH_IMAGE_BPMN_LARK, PATH_IMAGE_BPMN_LARK_SVG, SESE_PARSER, RESOLUTION
+"""
+    funzioni prese dal notebook
+"""
+def print_sese_diagram(expression, h = 0, probabilities={}, impacts={}, loop_thresholds = {}, outfile=PATH_IMAGE_BPMN_LARK, outfile_svg = PATH_IMAGE_BPMN_LARK_SVG,
+                        graph_options = {}, durations = {}, names = {}, delays = {}, impacts_names = [], resolution_bpmn = RESOLUTION, loop_round = {}, loops_prob={},):
     tree = SESE_PARSER.parse(expression)
     diagram = wrap_sese_diagram(tree=tree, h=h, probabilities= probabilities, impacts= impacts, loop_thresholds=loop_thresholds, durations=durations, names=names, delays=delays, impacts_names=impacts_names)
     global_options = f'graph[ { ", ".join([k+"="+str(graph_options[k]) for k in graph_options])  } ];'
     dot_string = "digraph my_graph{ \n rankdir=LR; \n" + global_options + "\n" + diagram +"}"
-    graph = pydot.graph_from_dot_data(dot_string)[0]
-    graph.write_svg(outfile + '.svg')
-
-    #graph.set('dpi', RESOLUTION)
-    #outfile += '.png'
-    #graph.write_png(outfile)
-    #return Image.open(outfile)
+    graphs = pydot.graph_from_dot_data(dot_string)    
+    graph = graphs[0]  
+    # print(graph)
+    # graph.write_svg(outfile_svg)
+    # graph.write_svg(PATH_IMAGE_BPMN_LARK_SVG)
+    # # #print(graph)  
+    # graph.set('dpi', resolution_bpmn)
+    # graph.write_png(outfile)    
+    # return  Image.open(outfile) 
+    return graph  
 
 def dot_sese_diagram(t, id = 0, h = 0, prob={}, imp={}, loops = {}, dur = {}, imp_names = [], names = {}, choices_list = {}, explainer = False):
     exit_label = ''
