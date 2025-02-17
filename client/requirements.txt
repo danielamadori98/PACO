@@ -1,0 +1,15 @@
+lark
+pydot
+pillow
+nbformat
+ipython
+numpy
+graphviz
+matplotlib
+dash-bootstrap-components
+pandas
+dash_svg
+dash
+pydantic
+dash_socketio
+dash_auth

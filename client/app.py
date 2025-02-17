@@ -1,21 +1,11 @@
 from dash import Dash, html, dcc
 import dash_bootstrap_components as dbc
 import dash
+from client.api.api import authorization_function, get_agent_definition, invoke_llm
 import dash_auth
 from dash.dependencies import Input, Output, State
-from agent import define_agent
 chat_history = []
-llm, config_llm = define_agent()
-
-async def authorization_function(username, password):
-    # resp = requests.get("http://127.0.0.1:8000/login", json={"username": username, "password": password})
-    # if resp.status_code == 200:
-    if (username == "admin") and (password == "admin"):
-        return True
-    else:
-        return False
-
-
+llm, config_llm = None, None
 
 app = Dash(__name__, use_pages=True, external_stylesheets=[dbc.themes.BOOTSTRAP, dbc.icons.BOOTSTRAP],
             suppress_callback_exceptions=True, 
@@ -25,7 +15,8 @@ auth = dash_auth.BasicAuth(
     auth_func = authorization_function
 )
 # https://github.com/PietroSala/process-impact-benchmarks
-app.layout = html.Div([        
+app.layout = html.Div([  
+        dcc.Store(id='auth-token-store', storage_type='session'),     
         dcc.Store(id = 'bpmn-lark-store', data={}),
         dcc.Store(id = 'chat-ai-store'),
         html.H1('BPMN+CPI APP!', style={'textAlign': 'center'}),
@@ -88,25 +79,27 @@ app.layout = html.Div([
 #######################
 
 @app.callback(
-    Output('chat-output-home', 'children'),
+    [Output('chat-output-home', 'children'),],
     [Input('send-button', 'n_clicks')],
-    [State('input-box', 'value')],
+    [State('input-box', 'value'), State('auth-token-store', 'data'),
+     State('chat-ai-store', 'data')],
     prevent_initial_call=True
 )
-def update_output(n_clicks, prompt, verbose = False):
-    
+def update_output(n_clicks, prompt, token, chat_history,  verbose = False):
+    if not token:
+        return html.P("Please log in first")
     if prompt:
         if verbose:
             print(prompt)
-        try:            
+        try:      
+            global llm
+            if llm is None:
+                llm, _ = get_agent_definition(token=token)      
             # Generate the response
-            response = llm.invoke({"input": prompt})
+            response, chat_history = invoke_llm(llm, prompt, token=token)
             if verbose:
                 print(f' response {response}')
-
-            # Add the user's message and the assistant's response to the chat history
-            chat_history.append((prompt, response.content))
-            
+           
             # Generate the chat history for display
             chat_display = []
             for user_msg, assistant_msg in chat_history:
@@ -116,6 +109,27 @@ def update_output(n_clicks, prompt, verbose = False):
             return html.Div(chat_display)
         except Exception as e:
             return html.P(f"Error: {e}")
+
+@app.callback(
+    Output('auth-token-store', 'data'),
+    Output('chat-ai-store', 'data'),
+    Input('auth-token-store', 'modified_timestamp'),
+    State('auth-token-store', 'data'),
+    prevent_initial_call=False
+)
+def initialize_token_and_llm(ts, current_token):
+    """Initialize token and LLM after successful authentication"""
+    if current_token is None:
+        # Get token from auth context
+        ctx = dash.callback_context
+        if hasattr(ctx, 'auth_token'):
+            token = ctx.auth_token
+            # Initialize LLM with token
+            global llm, config_llm
+            llm, config_llm = get_agent_definition(token=token)
+            return token, {'initialized': True}
+    return current_token or {}, {}
+
 
 if __name__ == '__main__':
     app.run(debug=True, host="0.0.0.0", port="8050", dev_tools_hot_reload=False) # http://157.27.86.122:8050/

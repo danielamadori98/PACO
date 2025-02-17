@@ -1,6 +1,8 @@
 import dash
-from dash import html, dcc
+from dash import html, dcc,Input, Output, State, callback
 import dash_bootstrap_components as dbc
+
+from api.api import get_image_content
 
 dash.register_page(__name__, path='/example')
 
@@ -18,11 +20,23 @@ layout = html.Div([
     '''),
     dbc.Alert(" Remember to put the () brackets around the regions to enhance  readability and secure the parsing. ", color='info'),
     html.Br(),
-    html.Img(src='assets/examples/bpmn_example.png', width = "1000"),
-    html.Br(),
+    html.Div([
+        html.Img(
+            id='bpmn-example-img',
+            src=f'data:image/png;base64,{get_image_content("bpmn_example")}',
+            width="1000"
+        ),
+        html.Div(id='image-load-error')
+    ]),html.Br(),
     html.H3("BPMN+CPI printed using Lark syntax"),
-    html.Img(src='assets/examples/lark_bpmn.svg', width = "1500"),
-    dcc.Markdown('''            
+    html.Div([
+        html.Img(
+            id='lark-bpmn-img',
+            src=f'data:image/svg+xml;base64,{get_image_content("lark_bpmn", "svg")}',
+            width="1500"
+        ),
+        html.Div(id='svg-load-error')
+    ]),dcc.Markdown('''            
             The diagram consists of a single-entry-single-exit (SESE) region, with a choice, a probabilistic split, and an impact for each task. The goal is
             to find a strategy that has the overall impact of the process in the limit of the expected impact. Here we explain the process in more details and next we will see which path brings us to the winning strategy.
             The bracketed numbers next to each activity represent impact vectors [a, b] where a = cost of the task and b = hours/men required to complete the task. For instance, cutting the metal piece has the cost
@@ -40,3 +54,35 @@ layout = html.Div([
             this strategy successfully kept the overall impact below the expected impact. 
     '''),
 ])
+
+@callback(
+    [Output('bpmn-example-img', 'src'),
+     Output('image-load-error', 'children')],
+    [Input('token-store', 'data')],
+    prevent_initial_call=False
+)
+def update_bpmn_image(token):
+    """Update BPMN image when token changes"""
+    try:
+        img_content = get_image_content("bpmn_example", token=token)
+        if img_content:
+            return f'data:image/png;base64,{img_content}', ''
+        return '', html.Div('Failed to load image', style={'color': 'red'})
+    except Exception as e:
+        return '', html.Div(f'Error: {str(e)}', style={'color': 'red'})
+
+@callback(
+    [Output('lark-bpmn-img', 'src'),
+     Output('svg-load-error', 'children')],
+    [Input('token-store', 'data')],
+    prevent_initial_call=False
+)
+def update_lark_image(token):
+    """Update Lark BPMN image when token changes"""
+    try:
+        img_content = get_image_content("lark_bpmn", "svg", token=token)
+        if img_content:
+            return f'data:image/svg+xml;base64,{img_content}', ''
+        return '', html.Div('Failed to load image', style={'color': 'red'})
+    except Exception as e:
+        return '', html.Div(f'Error: {str(e)}', style={'color': 'red'})

@@ -322,7 +322,23 @@ async def get_bpmn_img(name:str, token: str = None) -> FileResponse:
     if token == None:
         return HTTPException(status_code=403, detail="Not authorized")
     return FileResponse(f'assets/bpmnSvg/{name}.png', media_type='image/png', filename=f'{name}.png')
-
+@app.get("/bpmn_example_img")
+async def get_bpmn_img(name:str, type:str = 'png', token: str = None) -> FileResponse:
+    """
+    Returns the BPMN diagram image with the given name.
+    Args:
+        name (str): Name of the BPMN diagram image
+        token (str): Authorization token
+    Returns:
+        FileResponse: PNG image of the BPMN diagram
+    Raises:
+        HTTPException: 403 for unauthorized access
+    """
+    if token == None:
+        return HTTPException(status_code=403, detail="Not authorized")
+    if type == 'svg':
+        return FileResponse(f'assets/examples/{name}.svg', media_type='image/svg+xml', filename=f'{name}.svg')
+    return FileResponse(f'assets/examples/{name}.png', media_type='image/png', filename=f'{name}.png')
 
 @app.get("/check_correct_process_expression")
 async def check_correct_process_expression(expression: str, token:str = None) -> bool:
@@ -347,31 +363,31 @@ async def check_correct_process_expression(expression: str, token:str = None) ->
     except Exception as e:
         return False
 
-# @app.get("/check_input")
-# async def check_input_bpmn(bpmn: BPMNDefinition, bound: list[float], token:str = None) -> tuple[str, List[int]]:
-#     """
-#     Checks the input of the given BPMN process and bound.
+@app.get("/check_input")
+async def check_input_bpmn(bpmn: BPMNDefinition, bound: list[float], token:str = None) -> tuple[str, List[int]]:
+    """
+    Checks the input of the given BPMN process and bound.
 
-#     Args:
-#         bpmn (BPMNDefinition): The BPMN process to be checked.
-#         bound (list[float]): The bound to be checked.
+    Args:
+        bpmn (BPMNDefinition): The BPMN process to be checked.
+        bound (list[float]): The bound to be checked.
 
-#     Returns:
-#         str: An error message if the input is not valid, an empty string otherwise.
+    Returns:
+        str: An error message if the input is not valid, an empty string otherwise.
 
-#     Raises:
-#         400: If the input is not valid, an exception is raised.
-#         403: If the token is not provided, an exception not authorized.
-#     """
-#     if token == None:
-#         return HTTPException(status_code=403, detail="Not authorized")
-#     if not isinstance(bpmn, BPMNDefinition) or not isinstance(bound, list):
-#         return HTTPException(status_code=400, detail="Invalid input")
-#     try:
+    Raises:
+        400: If the input is not valid, an exception is raised.
+        403: If the token is not provided, an exception not authorized.
+    """
+    if token == None:
+        return HTTPException(status_code=403, detail="Not authorized")
+    if not isinstance(bpmn, BPMNDefinition) or not isinstance(bound, list):
+        return HTTPException(status_code=400, detail="Invalid input")
+    try:
 
-#         check_input(bpmn, bound)
-#     except Exception as e:
-#         return HTTPException(status_code=500, detail=str(e))
+        check_input(dict(bpmn), bound)
+    except Exception as e:
+        return HTTPException(status_code=500, detail=str(e))
 
 @app.get("/check_algo_usable")
 async def check_algo_usable(sfa :StrategyFounderAlgo, token:str = None) -> bool:
