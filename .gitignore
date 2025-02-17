@@ -11,3 +11,4 @@ src/assets/automaton.*
 .idea/inspectionProfiles/Project_Default.xml
 /src/pages/__pycache__
 /tests/output_files
+/client/flask_session

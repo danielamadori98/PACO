@@ -13,3 +13,6 @@ dash
 pydantic
 dash_socketio
 dash_auth
+flask-session
+aiohttp
+asyncio

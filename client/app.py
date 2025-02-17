@@ -1,18 +1,45 @@
+import asyncio
+import os
 from dash import Dash, html, dcc
 import dash_bootstrap_components as dbc
 import dash
 from api.api import authorization_function, get_agent_definition, invoke_llm
 import dash_auth
 from dash.dependencies import Input, Output, State
+from flask_session import Session
 chat_history = []
 llm, config_llm = None, None
 # docker build -t paco_dash .  && docker run -p 8050:8050 paco_dash
 app = Dash(__name__, use_pages=True, external_stylesheets=[dbc.themes.BOOTSTRAP, dbc.icons.BOOTSTRAP],
             suppress_callback_exceptions=True, 
         )
+server = app.server
+server.config.update(
+    SECRET_KEY=os.environ.get('SECRET_KEY', os.urandom(24).hex()),
+    SESSION_TYPE='filesystem',
+    SESSION_FILE_DIR='flask_session'
+)
+Session(server)
+
+def login(username, password):
+    if username== 'admin' and password == 'admin':
+        token = os.urandom(24).hex()
+        server.config.update(
+            SECRET_KEY=os.environ.get('SECRET_KEY', token),
+            SESSION_TYPE='filesystem',
+            SESSION_FILE_DIR='flask_session',
+            SESSION_PERMANENT=False,
+            PERMANENT_SESSION_LIFETIME=3600  # Session lifetime in seconds
+        )
+
+        # Initialize Flask-Session
+        Session(server)
+        return True
+    return False
+    # return asyncio.run(authorization_function(username, password), server=server) 
 auth = dash_auth.BasicAuth(
     app,
-    auth_func = authorization_function
+    auth_func = login, 
 )
 # https://github.com/PietroSala/process-impact-benchmarks
 app.layout = html.Div([  

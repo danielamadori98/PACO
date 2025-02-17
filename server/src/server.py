@@ -1,4 +1,5 @@
 from datetime import datetime
+import os
 from agent import define_agent
 from fastapi import FastAPI, HTTPException
 from fastapi.responses import FileResponse
@@ -14,7 +15,7 @@ from paco.parser.tree_lib import CNode, CTree
 from paco.saturate_execution.states import States
 from paco.searcher.search import search
 from utils.automa import calc_strategy_algo1, calc_strategy_algo2
-from utils.env import ALGORITHMS, PATH_IMAGE_BPMN_LARK, PATH_IMAGE_BPMN_LARK_SVG, RESOLUTION, SESE_PARSER
+from utils.env import ALGORITHMS, PATH_IMAGE_BPMN_LARK, PATH_IMAGE_BPMN_LARK_SVG, RESOLUTION, SESE_PARSER, sese_diagram_grammar
 from utils.print_sese_diagram import print_sese_diagram
 from paco.solver import paco
 from utils.check_syntax import check_algo_is_usable, checkCorrectSyntax, check_input
@@ -259,7 +260,7 @@ async def get():
     return f"welcome to PACO server"
 
 
-@app.get("/print_sese_diagram", response_class=FileResponse)
+@app.get("/print_sese_diagram")
 async def print_bpmn(request: BPMNPrinting, token: str = None) -> FileResponse:
     """
     Generates and returns a BPMN diagram image
@@ -273,11 +274,11 @@ async def print_bpmn(request: BPMNPrinting, token: str = None) -> FileResponse:
     """
     bpmn = request.bpmn
     if token == None:
-        return HTTPException(status_code=403, detail="Not authorized")
+        raise HTTPException(status_code=403, detail="Not authorized")
     if not isinstance(bpmn, BPMNDefinition):
-        return HTTPException(status_code=400, detail="Invalid input")
+        raise HTTPException(status_code=400, detail="Invalid input")
     if not checkCorrectSyntax(dict(bpmn)):
-        return HTTPException(status_code=400, detail="Invalid BPMN syntax")   
+        raise HTTPException(status_code=400, detail="Invalid BPMN syntax")   
     try:
         
         try:
@@ -303,7 +304,7 @@ async def print_bpmn(request: BPMNPrinting, token: str = None) -> FileResponse:
             print(e)
             print('--------------------------------')
             raise HTTPException(status_code=505, detail=str(e))
-        return None # FileResponse(f'src/{PATH_IMAGE_BPMN_LARK}', media_type='image/png', filename='bpmn.png')
+        return FileResponse(f'src/{PATH_IMAGE_BPMN_LARK}', media_type='image/png', filename='bpmn.png')
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
@@ -379,7 +380,7 @@ async def get_grammar(
     if token == None:
         raise HTTPException(status_code=403, detail="Not authorized")
     try:
-        return SESE_PARSER
+        return sese_diagram_grammar
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
@@ -753,7 +754,7 @@ async def login(request: LoginRequest):
         HTTPException: 401 for invalid credentials
     """
     if request.username == 'admin' and request.password == 'admin':
-        return {"token": 'nfononofdnofdno'}
+        return {"token": os.urandom(24).hex()}
     raise HTTPException(status_code=401, detail="Invalid credentials")
 
 
@@ -778,4 +779,9 @@ async def login(request: LoginRequest):
 #######################################################
 
 if __name__ == '__main__':   
-    uvicorn.run(app, host="0.0.0.0", port=8000)
+    uvicorn.run(
+        app, 
+        host="0.0.0.0", port=8000,
+        # ssl_keyfile=os.getenv("SSL_KEY"),      # Optional: SSL key
+        # ssl_certfile=os.getenv("SSL_CERT")   # Optional: SSL certificate
+    )

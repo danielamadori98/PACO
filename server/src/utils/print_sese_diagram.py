@@ -15,11 +15,11 @@ def print_sese_diagram(expression, h = 0, probabilities={}, impacts={}, loop_thr
     graphs = pydot.graph_from_dot_data(dot_string)    
     graph = graphs[0]  
     # print(graph)
-    # graph.write_svg(outfile_svg)
-    # graph.write_svg(PATH_IMAGE_BPMN_LARK_SVG)
+    graph.write_svg(outfile_svg)
+    graph.write_svg(PATH_IMAGE_BPMN_LARK_SVG)
     # # #print(graph)  
-    # graph.set('dpi', resolution_bpmn)
-    # graph.write_png(outfile)    
+    graph.set('dpi', resolution_bpmn)
+    graph.write_png(outfile)    
     # return  Image.open(outfile) 
     return graph  
 

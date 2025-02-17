@@ -1,3 +1,4 @@
+import asyncio
 import dash
 from dash import html, dcc,Input, Output, State, callback
 import dash_bootstrap_components as dbc
@@ -23,7 +24,7 @@ layout = html.Div([
     html.Div([
         html.Img(
             id='bpmn-example-img',
-            src=f'data:image/png;base64,{get_image_content("bpmn_example")}',
+            src='',
             width="1000"
         ),
         html.Div(id='image-load-error')
@@ -32,7 +33,7 @@ layout = html.Div([
     html.Div([
         html.Img(
             id='lark-bpmn-img',
-            src=f'data:image/svg+xml;base64,{get_image_content("lark_bpmn", "svg")}',
+            src='',
             width="1500"
         ),
         html.Div(id='svg-load-error')
@@ -64,8 +65,12 @@ layout = html.Div([
 def update_bpmn_image(token):
     """Update BPMN image when token changes"""
     try:
-        img_content = get_image_content("bpmn_example", token=token)
+        loop = asyncio.new_event_loop()
+        asyncio.set_event_loop(loop)
+        img_content = loop.run_until_complete(get_image_content("bpmn_example", token=token))
+        loop.close() 
         if img_content:
+            print('img : ', img_content)
             return f'data:image/png;base64,{img_content}', ''
         return '', html.Div('Failed to load image', style={'color': 'red'})
     except Exception as e:
@@ -80,8 +85,12 @@ def update_bpmn_image(token):
 def update_lark_image(token):
     """Update Lark BPMN image when token changes"""
     try:
-        img_content = get_image_content("lark_bpmn", "svg", token=token)
+        loop = asyncio.new_event_loop()
+        asyncio.set_event_loop(loop)
+        img_content = loop.run_until_complete(get_image_content("lark_bpmn", "svg", token=token))
+        loop.close()        
         if img_content:
+            print('img : ', img_content)
             return f'data:image/svg+xml;base64,{img_content}', ''
         return '', html.Div('Failed to load image', style={'color': 'red'})
     except Exception as e:
