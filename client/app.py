@@ -1,12 +1,12 @@
 from dash import Dash, html, dcc
 import dash_bootstrap_components as dbc
 import dash
-from client.api.api import authorization_function, get_agent_definition, invoke_llm
+from api.api import authorization_function, get_agent_definition, invoke_llm
 import dash_auth
 from dash.dependencies import Input, Output, State
 chat_history = []
 llm, config_llm = None, None
-
+# docker build -t paco_dash .  && docker run -p 8050:8050 paco_dash
 app = Dash(__name__, use_pages=True, external_stylesheets=[dbc.themes.BOOTSTRAP, dbc.icons.BOOTSTRAP],
             suppress_callback_exceptions=True, 
         )

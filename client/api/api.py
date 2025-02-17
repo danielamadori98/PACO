@@ -70,3 +70,12 @@ async def get_image_content(name, type='png', token=None) -> str:
     if response.status_code == 200:
         return base64.b64encode(response.content).decode()
     return None
+
+async def get_bpmn_grammar(token = None):
+    bpmn_grammar = requests.get(
+        f'{URL_SERVER}bpmn_grammar',
+        params={'token': token}
+    )
+    if bpmn_grammar.status_code == 200:
+        return bpmn_grammar.json()
+    return None

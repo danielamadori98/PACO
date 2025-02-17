@@ -363,6 +363,26 @@ async def check_correct_process_expression(expression: str, token:str = None) ->
     except Exception as e:
         return False
 
+@app.get("/bpmn_grammar")
+async def get_grammar(
+    token:str = None
+    ) -> str:
+    """
+    Returns the SESE diagram grammar.
+
+    Returns:
+        str: The SESE diagram grammar.
+
+    Raises:
+        403: If the token is not provided, an exception not authorized.
+    """
+    if token == None:
+        raise HTTPException(status_code=403, detail="Not authorized")
+    try:
+        return SESE_PARSER
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
 @app.get("/check_input")
 async def check_input_bpmn(bpmn: BPMNDefinition, bound: list[float], token:str = None) -> tuple[str, List[int]]:
     """
