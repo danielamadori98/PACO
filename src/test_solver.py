@@ -5,7 +5,143 @@ from paco.solver import paco
 
 
 bpmn_ex = {
-    "loop_example":  [{
+    "bpmn": [{
+            "expression": "(ProjectEvaluation, ((ResearchProjectA, (NoProblemA ^ [ProjectRiskA] OverCostDelayA)) / [ProjectSelection] (ResearchProjectB, (NoProblemB ^ [ProjectRiskB] OverCostDelayB))), ((DistributionPlanning /[DistributionChoice] DistributionOutsourcing) || (MarketingPlanning /[MarketingChoice] MarketingOutsourcing ) || (SupplyChainPlanning, (InternalImplementation / [ImplementationChoice] OutsourcedImplementation), (InternalSales / [SalesChoice] OutsourcedSales))))",
+            "impacts": {
+                "ProjectEvaluation": [50, 5, 10, 3],
+                "ResearchProjectA": [300, 15, 40, 20],
+                "NoProblemA": [0, 0, 0, 0],
+                "OverCostDelayA": [100, 5, 10, 5],
+                "ResearchProjectB": [250, 12, 35, 18],
+                "NoProblemB": [0, 0, 0, 0],
+                "OverCostDelayB": [120, 6, 15, 6],
+                "SupplyChainPlanning": [150, 8, 20, 10],
+                "DistributionPlanning": [180, 10, 30, 15],
+                "DistributionOutsourcing": [200, 10, 30, 15],
+                "MarketingPlanning": [250, 12, 40, 20],
+                "MarketingOutsourcing": [300, 15, 50, 25],
+                "OutsourcedResource": [220, 8, 20, 10],
+                "InternalImplementation": [400, 20, 50, 25],
+                "OutsourcedImplementation": [450, 18, 40, 20],
+                "InternalSales": [300, 15, 40, 20],
+                "OutsourcedSales": [350, 17, 45, 22]
+            },
+            "durations": {
+                "ProjectEvaluation": [1, 2],
+                "ResearchProjectA": [3, 5],
+                "NoProblemA": [0, 0],
+                "OverCostDelayA": [1, 2],
+                "ResearchProjectB": [2, 4],
+                "NoProblemB": [0, 0],
+                "OverCostDelayB": [1, 2],
+                "SupplyChainPlanning": [2, 3],
+                "DistributionPlanning": [3, 4],
+                "DistributionOutsourcing": [2, 3],
+                "MarketingPlanning": [3, 5],
+                "MarketingOutsourcing": [2, 3],
+                "OutsourcedResource": [1, 2],
+                "InternalImplementation": [4, 7],
+                "OutsourcedImplementation": [3, 6],
+                "InternalSales": [3, 10],
+                "OutsourcedSales": [2, 10]
+            },
+            "impacts_names": ["cost", "worker hours", "materials", "risk"],
+            "probabilities": {
+                "ProjectRiskA": 0.7,
+                "ProjectRiskB": 0.6
+            },
+            "delays": {
+                "ProjectSelection": 0,
+                "ResourceChoice": 0,
+                "MarketingChoice": 0,
+                "DistributionChoice": 0,
+                "ImplementationChoice": 0,
+                "SalesChoice": 0
+            },
+            "names": {
+                "ProjectSelection": "Project Selection Decision",
+                "ProjectRiskA": "Risk for Project A",
+                "OverCostAndDelayA": "OverCost and Delay for Project A",
+                "NoProblemA": "No Problem for Project A",
+                "ProjectRiskB": "Risk for Project B",
+                "OverCostAndDelayB": "OverCost and Delay for Project B",
+                "NoProblemB": "No Problem for Project B",
+                "SupplyChainPlanning": "Supply Chain Planning",
+                "DistributionChoice": "DistributionChoice",
+                "MarketingChoice": "MarketingChoice",
+                "ImplementationChoice": "Implementation Strategy",
+                "SalesChoice": "Sales Strategy"
+            },
+            "loop_round": {},
+            "loop_probability": {},
+            H:0
+        }, [1800, 90, 250, 120]
+    ],
+
+"bpmn_logistic": [{
+        "expression": "(OrderReceived, ((PrepareShipment || OrderValidation), (((RoadInternal / [RoadOutsource] (RoadCompanyA / [RoadCompany] RoadCompanyB)) ^ [TransportType] ((TrainCompanyA / [TrainCompanyAB] TrainCompanyB) / [TrainCompany] (TrainCompanyC / [TrainCompanyCD] TrainCompanyD)))), (Delivery, (ThermalDelivery / [ThermalOrElectric] ElectricDelivery / [ElectricOrHybrid] HybridDelivery))))",
+        "impacts": {
+            "OrderReceived": [0, 1, 0, 0],
+            "PrepareShipment": [100, 2, 10, 2],
+            "OrderValidation": [50, 1, 0, 1],
+            "RoadInternal": [300, 6, 50, 6],
+            "RoadCompanyA": [350, 5, 55, 5],
+            "RoadCompanyB": [340, 5.5, 52, 5],
+            "TrainCompanyA": [420, 4.5, 32, 4],
+            "TrainCompanyB": [410, 5, 31, 4.5],
+            "TrainCompanyC": [430, 4.8, 34, 4.2],
+            "TrainCompanyD": [415, 5, 33, 4.1],
+            "Delivery": [0,0,0,0],
+            "ThermalDelivery": [150, 7, 60, 7],
+            "ElectricDelivery": [130, 6, 5, 6],
+            "HybridDelivery": [140, 6.5, 20, 6.5]
+        },
+        "durations": {
+            "OrderReceived": [0, 1],
+            "PrepareShipment": [0, 2],
+            "OrderValidation": [0, 1],
+            "RoadInternal": [0, 6],
+            "RoadCompanyA": [0, 5],
+            "RoadCompanyB": [0, 5.5],
+            "TrainCompanyA": [0, 4.5],
+            "TrainCompanyB": [0, 5],
+            "TrainCompanyC": [0, 4.8],
+            "TrainCompanyD": [0, 5],
+            "Delivery": [1,1],
+            "ThermalDelivery": [0, 7],
+            "ElectricDelivery": [0, 6],
+            "HybridDelivery": [0, 6.5]
+        },
+        "impacts_names": ["cost", "worker hours", "emissions", "fuel"],
+        "probabilities": {"TransportType": 0.85},
+        "delays": {
+            "RoadOutsource": 0,
+            "RoadCompany": 0,
+            "TrainCompany": 0,
+            "TrainCompanyAB": 0,
+            "TrainCompanyCD": 0,
+            "DeliveryChoice": 0,
+            "ThermalOrElectric": 0,
+            "ElectricOrHybrid": 0
+        },
+        "names":{
+            "RoadOutsource": "RoadOutsource",
+            "RoadCompany": "RoadCompany",
+            "TrainCompany": "TrainCompany",
+            "TrainCompanyAB": "TrainCompanyAB",
+            "TrainCompanyCD": "TrainCompanyCD",
+            "DeliveryChoice": "DeliveryChoice",
+            "ThermalOrElectric": "ThermalOrElectric",
+            "ElectricOrHybrid": "ElectricOrHybrid",
+            "TransportType": "TransportType"
+        },
+        "loop_round": {},
+        "loop_probability": {},
+        H: 0
+    }, [597,16,65,15]
+    ],
+
+"loop_example":  [{
         TASK_SEQ: "T1, <[L1] T2 >",
         H: 0,
         IMPACTS: {"T1": [11, 15], "T2": [4, 2]},
